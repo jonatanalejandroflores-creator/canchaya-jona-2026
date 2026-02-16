@@ -1,0 +1,26 @@
+{
+  "project": "Cancha Ya",
+  "version": "1.0.0",
+  "status": "Production_Ready",
+  "vision": {
+    "problem": "Manual reservation friction & scheduling latency",
+    "solution": "Real-time NoSQL synchronization & frictionless UX"
+  },
+  "core_values": [
+    {
+      "value": "Efficiency",
+      "logic": "clicks <= 3 ? 'Successful_UX' : 'Needs_Optimization'"
+    },
+    {
+      "value": "Transparency",
+      "logic": "real_time_sync == true",
+      "impact": "Eliminates double-booking errors"
+    },
+    {
+      "value": "Empowerment",
+      "logic": "admin_control == 'Absolute'",
+      "feature": "Instant WhatsApp & Firebase delete hooks"
+    }
+  ],
+  "declaration": "We code to bridge the gap between athletes and their playground."
+}
