@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Cancha Ya</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: white; padding: 20px; margin: 0; }
+        .header { sticky; top: 0; background: #0f172a; padding: 10px 0; border-bottom: 1px solid #334155; margin-bottom: 20px; text-align: center; }
+        h1 { color: #38bdf8; margin: 0; }
+        .reserva-card { 
+            background: #1e293b; border-radius: 12px; padding: 15px; 
+            margin-bottom: 15px; border-left: 5px solid #38bdf8;
+            position: relative;
+        }
+        .info { margin-bottom: 5px; font-size: 14px; }
+        .nombre { font-size: 18px; font-weight: bold; color: #f8fafc; text-transform: capitalize; }
+        .cancha { color: #38bdf8; font-weight: bold; }
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { 
+            flex: 1; text-align: center; text-decoration: none; 
+            padding: 10px; border-radius: 8px; font-size: 13px; font-weight: bold;
+            border: none; cursor: pointer;
+        }
+        .btn-ws { background: #22c55e; color: white; }
+        .btn-del { background: #ef4444; color: white; }
+        .fecha { font-size: 11px; color: #94a3b8; display: block; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Gestión de Reservas</h1>
+    </div>
+    
+    <div id="lista-reservas">Cargando reservas...</div>
+
+    <script>
+        const firebaseConfig = { projectId: "canchaya-jona-2026" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Función para eliminar reserva
+        async function eliminarReserva(id) {
+            if(confirm("¿Estás seguro de finalizar esta reserva? Se borrará de la lista.")) {
+                try {
+                    await db.collection("reservas").doc(id).delete();
+                } catch (error) {
+                    alert("Error al eliminar: " + error);
+                }
+            }
+        }
+
+        // Escuchar cambios en tiempo real
+        db.collection("reservas").orderBy("fecha", "desc")
+            .onSnapshot((querySnapshot) => {
+                const contenedor = document.getElementById("lista-reservas");
+                contenedor.innerHTML = "";
+                
+                querySnapshot.forEach((doc) => {
+                    const res = doc.data();
+                    const id = doc.id; // Necesitamos el ID de Firebase para borrarlo
+                    
+                    contenedor.innerHTML += `
+                        <div class="reserva-card">
+                            <span class="fecha">${res.fecha || 'Sin fecha'}</span>
+                            <div class="nombre">${res.cliente}</div>
+                            <div class="info">Cancha: <span class="cancha">${res.cancha}</span></div>
+                            <div class="info">Tel: ${res.whatsapp}</div>
+                            
+                            <div class="actions">
+                                <a href="https://wa.me/${res.whatsapp}" target="_blank" class="btn btn-ws">
+                                    WhatsApp 💬
+                                </a>
+                                <button onclick="eliminarReserva('${id}')" class="btn btn-del">
+                                    Finalizar ✅
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                if (querySnapshot.empty) {
+                    contenedor.innerHTML = "<p style='text-align:center; color:#94a3b8;'>No hay reservas activas.</p>";
+                }
+            });
+    </script>
+</body>
+</html>

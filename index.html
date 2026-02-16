@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cancha Ya - Reservas</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        body { font-family: -apple-system, system-ui, sans-serif; background-color: #121212; color: white; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 450px; padding-bottom: 120px; }
+        h1 { color: #009ee3; text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 20px; font-size: 14px; }
+        
+        .grid-canchas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .card-option { background: #1e1e1e; border: 2px solid #333; border-radius: 15px; padding: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .card-option.selected { border-color: #009ee3; background: #252525; transform: scale(1.02); }
+        .card-option h2 { margin: 5px 0; font-size: 15px; }
+        .price { font-size: 17px; font-weight: bold; color: #009ee3; }
+
+        .section { background: #1e1e1e; padding: 15px; border-radius: 15px; border: 1px solid #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #444; background: #121212; color: white; box-sizing: border-box; font-size: 16px; }
+        
+        /* Contenedor del Mapa */
+        .map-container { width: 100%; border-radius: 10px; overflow: hidden; height: 150px; border: 1px solid #444; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        .footer-pay { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(18,18,18,0.95); padding: 15px; box-sizing: border-box; border-top: 1px solid #333; z-index: 100; }
+        .btn-pay { display: block; background-color: #009ee3; color: white; text-decoration: none; padding: 16px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 16px; box-shadow: 0 4px 10px rgba(0,158,227,0.3); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Cancha Ya</h1>
+        <p class="subtitle">Elegí tu cancha y reservá tu lugar</p>
+
+        <div class="grid-canchas">
+            <div class="card-option selected" onclick="selectOption('Padel 4', 25000, 'https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=3206360576-d0b5a32e-6d86-4cf4-960f-6811d8f557e5')" id="opt-1">
+                <div style="font-size:25px">🎾</div>
+                <h2>Padel 4</h2>
+                <div class="price">$25.000</div>
+            </div>
+            <div class="card-option" onclick="selectOption('Fútbol 5', 35000, '#')" id="opt-2">
+                <div style="font-size:25px">⚽</div>
+                <h2>Fútbol 5</h2>
+                <div class="price">$35.000</div>
+            </div>
+            <div class="card-option" onclick="selectOption('Padel 1', 25000, '#')" id="opt-3">
+                <div style="font-size:25px">🎾</div>
+                <h2>Padel 1</h2>
+                <div class="price">$25.000</div>
+            </div>
+            <div class="card-option" onclick="selectOption('Fútbol 7', 45000, '#')" id="opt-4">
+                <div style="font-size:25px">🏟️</div>
+                <h2>Fútbol 7</h2>
+                <div class="price">$45.000</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3 style="margin:0 0 10px 0; font-size:16px; color:#009ee3;">👤 Tus Datos</h3>
+            <input type="text" id="user-name" placeholder="Nombre completo">
+            <input type="tel" id="user-phone" placeholder="WhatsApp">
+        </div>
+
+        <div class="section">
+            <h3 style="margin:0 0 10px 0; font-size:16px; color:#009ee3;">📍 Ubicación</h3>
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3283.84473855523!2d-58.3815704!3d-34.6037389!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4aa42866504620f5%3A0x69680c25a5874c76!2sObelisco!5e0!3m2!1ses-419!2sar!4v1700000000000"></iframe>
+            </div>
+        </div>
+
+        <div class="footer-pay">
+            <a href="#" onclick="processPayment(event)" class="btn-pay" id="pay-button">
+                Reservar Padel 4 ($25.000)
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { projectId: "canchaya-jona-2026" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let selectedCancha = "Padel 4";
+        let currentPrice = 25000;
+        let currentLink = "https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=3206360576-d0b5a32e-6d86-4cf4-960f-6811d8f557e5";
+
+        function selectOption(nombre, precio, link) {
+            document.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            selectedCancha = nombre;
+            currentPrice = precio;
+            currentLink = link;
+            document.getElementById('pay-button').innerText = `Reservar ${nombre} ($${precio.toLocaleString('es-AR')})`;
+        }
+
+        async function processPayment(e) {
+            e.preventDefault();
+            const name = document.getElementById('user-name').value;
+            const phone = document.getElementById('user-phone').value;
+
+            if (!name || !phone) {
+                alert("Por favor, completá tu nombre y WhatsApp.");
+                return;
+            }
+
+            try {
+                await db.collection("reservas").add({
+                    cliente: name, whatsapp: phone, cancha: selectedCancha,
+                    monto: currentPrice, fecha: new Date().toLocaleString()
+                });
+                window.location.href = currentLink;
+            } catch (error) {
+                console.error(error);
+                window.location.href = currentLink; // Redirigir igual si falla DB
+            }
+        }
+    </script>
+</body>
+</html>
