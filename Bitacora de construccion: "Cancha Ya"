@@ -1,0 +1,38 @@
+🏗️ Bitácora de Construcción: "Cancha Ya"
+1. Cimientos y Base de Datos (Firebase)
+
+Creación del Proyecto: Iniciamos el proyecto en Google Firebase para tener infraestructura de nivel profesional gratis.
+
+Configuración de Firestore: Creamos una base de datos NoSQL para guardar las reservas (Nombre, WhatsApp, Cancha y Fecha) en tiempo real.
+
+Reglas de Seguridad: Configuramos el acceso para que cualquiera pueda "escribir" una reserva, pero que solo vos (el admin) pudieras leerlas y borrarlas.
+
+2. Desarrollo del Frontend (La Cara del Proyecto)
+
+App de Clientes (index.html): Diseñamos una interfaz en modo oscuro con una grilla para elegir entre Fútbol 7, Fútbol 5 o Padel.
+
+Lógica de Reserva: Programamos el formulario para que, al hacer clic, los datos se envíen a Firebase y se genere un link de pago.
+
+Integración de Pagos: Conectamos el botón de "Pagar Seña" con Mercado Pago para formalizar la reserva.
+
+3. Panel de Control y Gestión (admin.html)
+
+Vista de Administrador: Creamos un panel privado para ver quién reservó y qué cancha eligió.
+
+Acciones Rápidas: Agregamos botones para saltar directo al WhatsApp del cliente y un botón de "Finalizar" para limpiar la lista.
+
+Cerradura Digital (Auth): Implementamos un sistema de Login con Email y Contraseña para que el panel sea 100% privado.
+
+4. Infraestructura y Despliegue (Hosting)
+
+Firebase Hosting: Subimos los archivos a la nube para que la app sea accesible desde cualquier celular con un link .web.app.
+
+Certificados SSL: El sitio quedó protegido con el candado de seguridad (HTTPS) de forma automática.
+
+5. Profesionalización y Documentación (GitHub)
+
+Control de Versiones: Subimos todo el código a un repositorio en GitHub para tener copias de seguridad.
+
+Documentación Legal: Creamos los Términos y Condiciones (terminos.html) para cubrirte legalmente.
+
+Manifiesto y README: Redactamos la visión del proyecto y el manual técnico tanto en texto como en formato JSON para que sea un proyecto "Premium".
